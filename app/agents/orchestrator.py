@@ -182,7 +182,7 @@ async def get_graph():
 
     settings = get_settings()
     try:
-        _checkpointer = AsyncRedisSaver.from_conn_string(settings.redis_url)
+        _checkpointer = AsyncRedisSaver(redis_url=settings.redis_url)
         await _checkpointer.asetup()
         logger.info("checkpointer_redis_connected")
     except Exception as exc:
