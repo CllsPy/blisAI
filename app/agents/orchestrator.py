@@ -4,8 +4,7 @@ Orchestrator Agent — LangGraph-based multi-agent orchestration.
 Graph flow:
   START → router → [faq_node | search_node | both (parallel)] → consolidate → END
 """
-from typing import TypedDict, Optional, Literal, Annotated
-import operator
+from typing import TypedDict, Optional, Literal
 import asyncio
 
 from langgraph.graph import StateGraph, START, END
@@ -118,30 +117,20 @@ async def consolidate_node(state: GraphState) -> GraphState:
 
     faq = state.get("faq_response")
     search = state.get("search_response")
-    sources: list[str] = []
 
     if faq and search:
         content = f"Informação da base de conhecimento:\n{faq}\n\nInformação da busca em tempo real:\n{search}"
         agent_used = "both"
-        sources = (state.get("faq_sources") or []) + (state.get("search_sources") or [])
     elif faq:
-        content = faq
-        agent_used = "faq"
-        sources = state.get("faq_sources") or []
+        return {**state, "final_response": faq, "agent_used": "faq"}
     elif search:
-        content = search
-        agent_used = "search"
-        sources = state.get("search_sources") or []
+        return {**state, "final_response": search, "agent_used": "search"}
     else:
         return {
             **state,
             "final_response": "Não foi possível encontrar uma resposta. Por favor, tente novamente.",
             "agent_used": "orchestrator",
         }
-
-    # If single source, no need for consolidation LLM call
-    if not (faq and search):
-        return {**state, "final_response": content, "agent_used": agent_used}
 
     llm = ChatOpenAI(
         model=settings.llm_model,
