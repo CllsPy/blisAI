@@ -19,3 +19,4 @@ sse-starlette
 pytest
 pytest-asyncio
 httpx
+langchain-text-splitters
