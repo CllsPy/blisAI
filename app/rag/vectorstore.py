@@ -41,7 +41,7 @@ def build_vectorstore(force_rebuild: bool = False) -> FAISS:
     )
     index_path = Path(settings.faiss_index_path)
 
-    if not force_rebuild and index_path.exists():
+    if not force_rebuild and (index_path / "index.faiss").exists():
         logger.info("loading_existing_faiss_index", path=str(index_path))
         _vectorstore = FAISS.load_local(
             str(index_path), embeddings, allow_dangerous_deserialization=True
