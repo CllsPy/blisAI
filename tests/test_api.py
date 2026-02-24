@@ -21,7 +21,7 @@ def mock_settings(monkeypatch):
 def client(mock_settings):
     with patch("app.rag.vectorstore.build_vectorstore"), \
          patch("app.agents.orchestrator.get_graph", new_callable=AsyncMock):
-        from app.main import app
+        from main import app
         return TestClient(app)
 
 
@@ -56,7 +56,7 @@ async def test_chat_endpoint(mock_settings):
         mock_redis_cls.from_conn_string.return_value = AsyncMock()
 
         from fastapi.testclient import TestClient
-        from app.main import app
+        from main import app
 
         with TestClient(app) as c:
             resp = c.post("/chat", json={
