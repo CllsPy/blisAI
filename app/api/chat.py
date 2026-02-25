@@ -56,27 +56,6 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(exc)}")
 
 
-@router.get("/history/{session_id}")
-async def chat_history(session_id: str):
-    """Retorna o histórico de mensagens acumulado no checkpointer para uma sessão."""
-    graph = await get_graph()
-    config = {"configurable": {"thread_id": session_id}}
-    state = await graph.aget_state(config)
-    if not state or not state.values:
-        return {"session_id": session_id, "message_count": 0, "messages": []}
-
-    messages = state.values.get("messages", [])
-    return {
-        "session_id": session_id,
-        "message_count": len(messages),
-        "messages": [
-            {"role": "user" if m.__class__.__name__ == "HumanMessage" else "assistant",
-             "content": m.content}
-            for m in messages
-        ],
-    }
-
-
 @router.post("/stream")
 async def chat_stream(request: ChatRequest):
     """SSE streaming chat endpoint."""
