@@ -1,11 +1,7 @@
-adicione um sumário e bold extrategicamente, retorne em .md
-
 # Objetivo
-
 Desenvolvimento de uma API REST com arquitetura multi-agent usando LangGraph, onde dois agentes colaboram para responder perguntas sobre viagens.
 
 # Como usei IA no desenvolvimento?
-
 ## TL;DR
 - Eu uso IA com abordagem Question Driven Development, começando com muitas perguntas e modelos menores.
 - Quebro o problema em partes com GPT-5, uso LLMs para montar a estrutura do projeto e gerar prompts (APE, CoT).
@@ -23,7 +19,6 @@ Quando inicio um projeto novo eu uso a abordagem Question Driven Development. Is
 A primeira coisa que fiz foi usar o GPT-5 para decompor o desafio em partes menores. Isso me ajudou a organizar o documento e será fundamental na etapa dos Agentes.
 
 ## Backbone
-
 Antes dos modelos de linguagem eu usava Cookiecutter para gerar a estrutura dos projetos. Hoje isso é feito estritamente com LLMs.
 
 ## Engenharia de Prompt (CoT, Auto-CoT, APE)
