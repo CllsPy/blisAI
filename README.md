@@ -1,4 +1,3 @@
-```md
 # API REST Multi-Agent com LangGraph
 
 ## Sumário
@@ -177,8 +176,4 @@ curl -X POST http://localhost:8000/chat \
 pytest
 ```
 
-Os testes usam **mocks**.
-Não precisam de chaves reais.
-
-```
-```
+Os testes usam **mocks**. Não precisam de chaves reais.
