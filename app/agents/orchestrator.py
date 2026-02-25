@@ -4,15 +4,16 @@ Orchestrator Agent — LangGraph-based multi-agent orchestration.
 Graph flow:
   START → router → [faq_node | search_node | both (parallel)] → consolidate → END
 """
-from typing import TypedDict, Optional, Literal
+from typing import TypedDict, Optional, Literal, Annotated
 import asyncio
 
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph, START, END, add_messages
 from langgraph.checkpoint.redis.aio import AsyncRedisSaver
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 
 from app.agents.faq_agent import run_faq_agent
 from app.agents.search_agent import run_search_agent
@@ -26,7 +27,9 @@ logger = get_logger(__name__)
 
 class GraphState(TypedDict):
     session_id: str
-    user_message: str
+    # Histórico acumulado via reducer — o checkpointer persiste isso entre turnos
+    messages: Annotated[list[BaseMessage], add_messages]
+    user_message: str          # mensagem do turno atual (conveniência para os nós)
     route: Optional[Literal["faq", "search", "both"]]
     faq_response: Optional[str]
     search_response: Optional[str]
@@ -122,14 +125,19 @@ async def consolidate_node(state: GraphState) -> GraphState:
         content = f"Informação da base de conhecimento:\n{faq}\n\nInformação da busca em tempo real:\n{search}"
         agent_used = "both"
     elif faq:
-        return {**state, "final_response": faq, "agent_used": "faq"}
+        # add_messages reducer vai ACRESCENTAR ao histórico existente no checkpoint
+        return {**state, "final_response": faq, "agent_used": "faq",
+                "messages": [AIMessage(content=faq)]}
     elif search:
-        return {**state, "final_response": search, "agent_used": "search"}
+        return {**state, "final_response": search, "agent_used": "search",
+                "messages": [AIMessage(content=search)]}
     else:
+        fallback = "Não foi possível encontrar uma resposta. Por favor, tente novamente."
         return {
             **state,
-            "final_response": "Não foi possível encontrar uma resposta. Por favor, tente novamente.",
+            "final_response": fallback,
             "agent_used": "orchestrator",
+            "messages": [AIMessage(content=fallback)],
         }
 
     llm = ChatOpenAI(
@@ -141,7 +149,9 @@ async def consolidate_node(state: GraphState) -> GraphState:
     chain = prompt | llm | StrOutputParser()
     final = await chain.ainvoke({"content": content, "question": state["user_message"]})
 
-    return {**state, "final_response": final, "agent_used": agent_used}
+    # Grava a resposta consolidada no histórico — o checkpointer persiste isso no Redis
+    return {**state, "final_response": final, "agent_used": agent_used,
+            "messages": [AIMessage(content=final)]}
 
 
 # ─── Graph Builder ────────────────────────────────────────────────────────────
