@@ -5,7 +5,6 @@ Desenvolvimento de uma API REST com arquitetura multi-agent usando LangGraph, on
 # Como usei IA no desenvolvimento?
 
 ## TL;DR
-
 - Eu uso IA com abordagem Question Driven Development, começando com muitas perguntas e modelos menores.
 - Quebro o problema em partes com GPT-5, uso LLMs para montar a estrutura do projeto e gerar prompts (APE, CoT).
 - Sempre reviso o código porque os modelos perdem contexto (“Lost in the Middle”) e evito continuar chats com muitos erros acumulados.
@@ -13,6 +12,8 @@ Desenvolvimento de uma API REST com arquitetura multi-agent usando LangGraph, on
 - Usei Claude Code, ChatGPT e DeepSeek.
 - Funcionou para compreender conceitos minimamente, alterar código conforme o teste, debugar, criar testes e entender como rodar o projeto localmente.
 - Não funcionou tentar debugar sem acesso à codebase é complexo e quase impossível. Por isso, exceto o Claude, os outros modelos foram usados apenas para perguntas pontuais.
+- MCP usado: sequentialthinking
+- Comandos usados com Claude Code (#, /init)
 
 ## Quebre em um milhão de partes
 
@@ -66,3 +67,10 @@ Isso me ajudou a avançar mesmo sem domínio total da ferramenta.
 ## Na natureza nada se cria
 
 Grande parte das ideias veio de colegas de desenvolvimento web e de um relatório da Anthropic sobre como seus engenheiros usam IA para produtividade. Busquei me alinhar ao relatório. Depois de resolver bugs, o que mais precisei fazer foi pedir direcionamento após cometer erros.
+
+### MCP é inútil
+**Um MCP do projeto, tem algumas limitações,** a primeira é que eu usei a api da Openai, a segunda é que eu estou usando apenas uma ferramenta externa que é o acesso a WEB.
+
+**Em que situação faria sentido usar?** Bem, se houvesse uma quantidade maior de ferramentas, como ocorre na BLIS faria sentido centralizar as ferramentas dessa forma teríamos outra abordagem mais unificada em oposição a **criar uma API para cada caso de uso.**
+
+Então, **eu optei por usar ÚTEIS MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
