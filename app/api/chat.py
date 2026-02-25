@@ -3,6 +3,8 @@ from fastapi.responses import StreamingResponse
 import json
 import asyncio
 
+from langchain_core.messages import HumanMessage
+
 from app.models.schemas import ChatRequest, ChatResponse
 from app.agents.orchestrator import get_graph
 from app.core.logging import get_logger
@@ -15,9 +17,15 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 async def _invoke_graph(session_id: str, message: str) -> dict:
     graph = await get_graph()
     config = {"configurable": {"thread_id": session_id}}
-    initial_state = {
+
+    # Passamos apenas o delta do turno atual.
+    # Campos SEM reducer (route, faq_response...) são resetados por turno — correto.
+    # Campo COM reducer (messages) recebe só a nova HumanMessage — o add_messages
+    # reducer ACRESCENTA ao histórico que o checkpointer restaurou do Redis.
+    input_state = {
         "session_id": session_id,
         "user_message": message,
+        "messages": [HumanMessage(content=message)],
         "route": None,
         "faq_response": None,
         "search_response": None,
@@ -26,7 +34,7 @@ async def _invoke_graph(session_id: str, message: str) -> dict:
         "final_response": None,
         "agent_used": None,
     }
-    result = await graph.ainvoke(initial_state, config=config)
+    result = await graph.ainvoke(input_state, config=config)
     return result
 
 
@@ -57,9 +65,10 @@ async def chat_stream(request: ChatRequest):
         try:
             graph = await get_graph()
             config = {"configurable": {"thread_id": request.session_id}}
-            initial_state = {
+            input_state = {
                 "session_id": request.session_id,
                 "user_message": request.message,
+                "messages": [HumanMessage(content=request.message)],
                 "route": None,
                 "faq_response": None,
                 "search_response": None,
@@ -69,7 +78,7 @@ async def chat_stream(request: ChatRequest):
                 "agent_used": None,
             }
 
-            async for event in graph.astream_events(initial_state, config=config, version="v2"):
+            async for event in graph.astream_events(input_state, config=config, version="v2"):
                 kind = event.get("event")
                 name = event.get("name", "")
 
