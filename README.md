@@ -75,20 +75,38 @@ Grande parte das ideias veio de colegas de desenvolvimento web e de um relatóri
 
 Então, **eu optei por usar ÚTEIS MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
 
-# **Blis AI — Como rodar localmente**
+# **Como rodar localmente (Com Docker)**
 
 ## Pré-requisitos
 
 - Python 3.11+
 - Docker (para o Redis)
 
-## 1. Clone e instale as dependências
+# Como rodar localmente (com Docker)
+
+## Pré-requisitos
+* Python 3.11 ou superior
+* Docker
+
+## 1. Criar e ativar o ambiente virtual
+
+```bash
+python3 -m venv venv
+```
+
+Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+Instale as dependências:
 
 ```bash
 pip install -e .
 ```
 
-## 2. Configure as variáveis de ambiente
+## 2. Configurar variáveis de ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
@@ -98,21 +116,30 @@ TAVILY_API_KEY=tvly-sua-chave-aqui
 REDIS_URL=redis://localhost:6379
 ```
 
-## 3. Suba o Redis
+## 3. Subir o Redis
 
 ```bash
-docker-compose up redis -d
+docker compose up --build
 ```
 
-## 4. Inicie o servidor
+## 4. Acessar a API
 
-```bash
-uvicorn app.main:app --reload
+* API: [http://localhost:8000](http://localhost:8000)
+* Health check: [http://localhost:8000/health](http://localhost:8000/health)
+
+Resposta esperada:
+
+```json
+{"status":"ok","version":"1.0.0","redis_connected":true,"faiss_loaded":true}
 ```
 
-A API estará disponível em `http://localhost:8000`.
+Documentação interativa:
 
-## 5. Teste a API
+[http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+## 5. Testar via terminal
 
 ```bash
 curl -X POST http://localhost:8000/chat \
@@ -120,18 +147,11 @@ curl -X POST http://localhost:8000/chat \
   -d '{"session_id": "user-1", "message": "Qual a franquia de bagagem da LATAM?"}'
 ```
 
-## 6. Rodar os testes
+## 6. Rodar testes
 
 ```bash
 pytest
 ```
 
-Os testes não precisam de chaves reais — tudo é mockado.
+Os testes usam mocks. Não precisam de chaves reais.
 
-## Alternativa: rodar tudo com Docker
-
-```bash
-docker-compose up --build
-```
-
-Isso sobe Redis + API juntos automaticamente.
