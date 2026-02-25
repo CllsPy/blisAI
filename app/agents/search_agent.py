@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import BaseMessage
 from app.tools.search import get_search_tool
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -19,7 +20,7 @@ Responda em português, de forma amigável e profissional."""
 SEARCH_HUMAN_PROMPT = "Pergunta: {question}"
 
 
-async def run_search_agent(question: str) -> dict:
+async def run_search_agent(question: str, history: list[BaseMessage] | None = None) -> dict:
     """
     Run the web search agent.
     Returns dict with 'answer' and 'sources'.
@@ -49,10 +50,11 @@ async def run_search_agent(question: str) -> dict:
     )
     prompt = ChatPromptTemplate.from_messages([
         ("system", SEARCH_SYSTEM_PROMPT),
+        MessagesPlaceholder(variable_name="history", optional=True),
         ("human", SEARCH_HUMAN_PROMPT),
     ])
     chain = prompt | llm | StrOutputParser()
-    answer = await chain.ainvoke({"search_results": formatted, "question": question})
+    answer = await chain.ainvoke({"search_results": formatted, "question": question, "history": history or []})
 
     logger.info("search_agent_responded", source_count=len(sources))
     return {"answer": answer, "sources": sources}

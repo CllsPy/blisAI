@@ -1,14 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 import json
-import asyncio
 
 from langchain_core.messages import HumanMessage
 
 from app.models.schemas import ChatRequest, ChatResponse
 from app.agents.orchestrator import get_graph
 from app.core.logging import get_logger
-from datetime import datetime
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -87,6 +85,9 @@ async def chat_stream(request: ChatRequest):
                     yield f"data: {json.dumps({'type': 'status', 'content': f'Roteando para: {route}'})}\n\n"
 
                 elif kind == "on_chat_model_stream":
+                    # Skip tokens from the router LLM (e.g. "faq", "search") — only stream answer tokens
+                    if event.get("metadata", {}).get("langgraph_node") == "router":
+                        continue
                     chunk = event.get("data", {}).get("chunk")
                     if chunk and hasattr(chunk, "content") and chunk.content:
                         yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"

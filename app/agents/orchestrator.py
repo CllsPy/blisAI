@@ -47,9 +47,24 @@ ROUTER_PROMPT = """Você é um roteador de perguntas de viagem. Classifique a pe
 - "search": perguntas sobre preços atuais, disponibilidade de voos, notícias recentes, novidades de companhias
 - "both": perguntas que precisam tanto de políticas quanto de informações em tempo real
 
+Histórico recente da conversa (use para interpretar perguntas vagas ou pronomes):
+{history}
+
 Responda APENAS com uma dessas palavras: faq, search, both
 
-Pergunta: {question}"""
+Pergunta atual: {question}"""
+
+
+def _format_history(messages: list[BaseMessage], limit: int = 6) -> str:
+    """Format the last N messages as plain text for the router prompt."""
+    recent = messages[-limit:] if len(messages) > limit else messages
+    lines = []
+    for msg in recent:
+        if isinstance(msg, HumanMessage):
+            lines.append(f"Usuário: {msg.content}")
+        elif isinstance(msg, AIMessage):
+            lines.append(f"Assistente: {msg.content}")
+    return "\n".join(lines) if lines else "(sem histórico)"
 
 
 async def router_node(state: GraphState) -> GraphState:
@@ -59,9 +74,13 @@ async def router_node(state: GraphState) -> GraphState:
         openai_api_key=settings.openai_api_key,
         temperature=0,
     )
+    # Exclude current HumanMessage (last item) — use only prior turns for context
+    prior = state["messages"][:-1]
+    history_text = _format_history(prior)
+
     prompt = ChatPromptTemplate.from_messages([("human", ROUTER_PROMPT)])
     chain = prompt | llm | StrOutputParser()
-    route_raw = await chain.ainvoke({"question": state["user_message"]})
+    route_raw = await chain.ainvoke({"question": state["user_message"], "history": history_text})
     route = route_raw.strip().lower()
     if route not in ("faq", "search", "both"):
         route = "faq"
@@ -82,19 +101,22 @@ def route_edge(state: GraphState) -> Literal["faq_node", "search_node", "both_no
 # ─── Agent Nodes ──────────────────────────────────────────────────────────────
 
 async def faq_node(state: GraphState) -> GraphState:
-    result = await run_faq_agent(state["user_message"])
+    history = state["messages"][:-1]
+    result = await run_faq_agent(state["user_message"], history=history)
     return {**state, "faq_response": result["answer"], "faq_sources": result["sources"]}
 
 
 async def search_node(state: GraphState) -> GraphState:
-    result = await run_search_agent(state["user_message"])
+    history = state["messages"][:-1]
+    result = await run_search_agent(state["user_message"], history=history)
     return {**state, "search_response": result["answer"], "search_sources": result["sources"]}
 
 
 async def both_node(state: GraphState) -> GraphState:
+    history = state["messages"][:-1]
     faq_result, search_result = await asyncio.gather(
-        run_faq_agent(state["user_message"]),
-        run_search_agent(state["user_message"]),
+        run_faq_agent(state["user_message"], history=history),
+        run_search_agent(state["user_message"], history=history),
     )
     return {
         **state,

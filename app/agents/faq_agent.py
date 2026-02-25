@@ -1,7 +1,8 @@
-from typing import TypedDict, Optional, Annotated
+from typing import Optional
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import BaseMessage
 from app.rag.vectorstore import get_vectorstore
 from app.core.config import get_settings
 from app.core.logging import get_logger
@@ -31,12 +32,13 @@ def build_faq_chain():
     )
     prompt = ChatPromptTemplate.from_messages([
         ("system", FAQ_SYSTEM_PROMPT),
+        MessagesPlaceholder(variable_name="history", optional=True),
         ("human", FAQ_HUMAN_PROMPT),
     ])
     return prompt | llm | StrOutputParser()
 
 
-async def run_faq_agent(question: str) -> dict:
+async def run_faq_agent(question: str, history: list[BaseMessage] | None = None) -> dict:
     """
     Run the FAQ RAG agent.
     Returns dict with 'answer' and 'sources'.
@@ -53,13 +55,13 @@ async def run_faq_agent(question: str) -> dict:
 
     # Retrieve relevant documents
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
-    docs = retriever.invoke(question)
+    docs = await retriever.ainvoke(question)
     sources = list({doc.metadata.get("source", "unknown") for doc in docs})
     context = "\n\n---\n\n".join(doc.page_content for doc in docs)
 
     # Generate answer
     chain = build_faq_chain()
-    answer = await chain.ainvoke({"context": context, "question": question})
+    answer = await chain.ainvoke({"context": context, "question": question, "history": history or []})
 
     logger.info("faq_agent_responded", sources=sources)
     return {"answer": answer, "sources": sources}
