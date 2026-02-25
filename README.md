@@ -74,3 +74,64 @@ Grande parte das ideias veio de colegas de desenvolvimento web e de um relatóri
 **Em que situação faria sentido usar?** Bem, se houvesse uma quantidade maior de ferramentas, como ocorre na BLIS faria sentido centralizar as ferramentas dessa forma teríamos outra abordagem mais unificada em oposição a **criar uma API para cada caso de uso.**
 
 Então, **eu optei por usar ÚTEIS MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
+
+# **Blis AI — Como rodar localmente**
+
+## Pré-requisitos
+
+- Python 3.11+
+- Docker (para o Redis)
+
+## 1. Clone e instale as dependências
+
+```bash
+pip install -e .
+```
+
+## 2. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```
+OPENAI_API_KEY=sk-sua-chave-aqui
+TAVILY_API_KEY=tvly-sua-chave-aqui
+REDIS_URL=redis://localhost:6379
+```
+
+## 3. Suba o Redis
+
+```bash
+docker-compose up redis -d
+```
+
+## 4. Inicie o servidor
+
+```bash
+uvicorn app.main:app --reload
+```
+
+A API estará disponível em `http://localhost:8000`.
+
+## 5. Teste a API
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"session_id": "user-1", "message": "Qual a franquia de bagagem da LATAM?"}'
+```
+
+## 6. Rodar os testes
+
+```bash
+pytest
+```
+
+Os testes não precisam de chaves reais — tudo é mockado.
+
+## Alternativa: rodar tudo com Docker
+
+```bash
+docker-compose up --build
+```
+
+Isso sobe Redis + API juntos automaticamente.
