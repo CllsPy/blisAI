@@ -131,12 +131,12 @@ Documentação interativa:
 
 [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## 5. Testar via terminal
+## 5. Testar via PowerShell
 
 ```bash
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"session_id": "user-1", "message": "Qual a franquia de bagagem da LATAM?"}'
+curl -Method POST http://localhost:8000/chat `
+  -Headers @{"Content-Type"="application/json"} `
+  -Body '{"session_id":"user-1","message":"Qual a franquia de bagagem da LATAM?"}'
 ```
 
 ## 6. Rodar testes
