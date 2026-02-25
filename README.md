@@ -75,13 +75,6 @@ Grande parte das ideias veio de colegas de desenvolvimento web e de um relatóri
 
 Então, **eu optei por usar ÚTEIS MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
 
-# **Como rodar localmente (Com Docker)**
-
-## Pré-requisitos
-
-- Python 3.11+
-- Docker (para o Redis)
-
 # Como rodar localmente (com Docker)
 
 ## Pré-requisitos
