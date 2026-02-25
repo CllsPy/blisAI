@@ -3,14 +3,14 @@ Desenvolvimento de uma API REST com arquitetura multi-agent usando LangGraph, on
 
 # Como usei IA no desenvolvimento?
 ## TL;DR
-- Eu uso IA com abordagem Question Driven Development, começando com muitas perguntas e modelos menores.
-- Quebro o problema em partes com GPT-5, uso LLMs para montar a estrutura do projeto e gerar prompts (APE, CoT).
-- Sempre reviso o código porque os modelos perdem contexto (“Lost in the Middle”) e evito continuar chats com muitos erros acumulados.
+- Eu uso IA com abordagem **Question Driven Development**, começando com muitas perguntas e modelos menores.
+- Quebro o problema em partes com **GPT-5**, uso LLMs para montar a estrutura do projeto e gerar prompts (APE, CoT).
+- Sempre reviso o código porque os modelos perdem contexto [(“Lost in the Middle”)](https://arxiv.org/pdf/2307.03172) e evito continuar chats com muitos erros acumulados.
 - Uso Claude para debugar (ex: Docker/Redis) e me inspiro em colegas e no relatório da Anthropic para evoluir minha produtividade.
-- Usei Claude Code, ChatGPT e DeepSeek.
-- Funcionou para compreender conceitos minimamente, alterar código conforme o teste, debugar, criar testes e entender como rodar o projeto localmente.
-- Não funcionou tentar debugar sem acesso à codebase é complexo e quase impossível. Por isso, exceto o Claude, os outros modelos foram usados apenas para perguntas pontuais.
-- MCP usado: sequentialthinking
+- Usei **Claude Code**, **ChatGPT** e **DeepSeek**.
+- **Funcionou** para compreender conceitos minimamente, alterar código conforme o teste, debugar, criar testes e entender como rodar o projeto localmente.
+- **Não funcionou** tentar debugar sem acesso à codebase é complexo e quase impossível. Por isso, exceto o Claude, os outros modelos foram usados apenas para perguntas pontuais.
+- **MCP usado**: sequentialthinking
 - Comandos usados com Claude Code (#, /init)
 
 ## Quebre em um milhão de partes
@@ -50,16 +50,10 @@ outputs que eu espero
 
 ## Quem vigia o vigilante?
 
-Modelos degradam quando o contexto aumenta. O trabalho “Lost In The Middle” mostra que, mesmo com mais de 128k tokens, eles tendem a esquecer informações no meio. Por isso sempre reviso o código gerado, mesmo quando os testes passam.  
-Evito continuar chats onde erros foram acumulados — nesses casos, tento outra abordagem.
+Modelos degradam quando o contexto aumenta. O trabalho “Lost In The Middle” mostra que, mesmo com mais de 128k tokens, eles tendem a esquecer informações no meio. Por isso sempre reviso o código gerado, mesmo quando os testes passam. Evito continuar chats onde erros foram acumulados nesses casos, tento outra abordagem.
 
 ## I can’t understand, mate
-
-Especialmente nas etapas com Docker e Redis, apesar de familiaridade, minha falta de prática dificultou entender alguns logs.  
-Nesses casos usei Claude para debugar.
-
-À medida que a complexidade aumentava, também pedi explicações sobre implementações fora do escopo de IA, como persistência.  
-Isso me ajudou a avançar mesmo sem domínio total da ferramenta.
+Especialmente nas etapas com Docker e Redis, apesar de familiaridade, minha falta de prática dificultou entender alguns logs. Nesses casos usei Claude para debugar. À medida que a complexidade aumentava, também pedi explicações sobre implementações fora do escopo de IA, como persistência. Isso me ajudou a avançar mesmo sem domínio total da ferramenta.
 
 ## Na natureza nada se cria
 
@@ -146,3 +140,6 @@ pytest
 ```
 
 Os testes usam mocks. Não precisam de chaves reais.
+
+# Extra
+[Logs do projeto que eu fui criando durante o desenvolvimento](https://carlos-log.super.site/archive/blog/logs-blisai)
