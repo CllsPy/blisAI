@@ -59,12 +59,12 @@ Especialmente nas etapas com Docker e Redis, apesar de familiaridade, minha falt
 
 Grande parte das ideias veio de colegas de desenvolvimento web e de um relatório da Anthropic sobre como seus engenheiros usam IA para produtividade. Busquei me alinhar ao relatório. Depois de resolver bugs, o que mais precisei fazer foi pedir direcionamento após cometer erros.
 
-### MCP é inútil
+### MCP
 **Um MCP do projeto, tem algumas limitações,** a primeira é que eu usei a api da Openai, a segunda é que eu estou usando apenas uma ferramenta externa que é o acesso a WEB.
 
 **Em que situação faria sentido usar?** Bem, se houvesse uma quantidade maior de ferramentas, como ocorre na BLIS faria sentido centralizar as ferramentas dessa forma teríamos outra abordagem mais unificada em oposição a **criar uma API para cada caso de uso.**
 
-Então, **eu optei por usar ÚTEIS MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
+Então, **eu optei por usar MCPs populares e escrito para pessoas, certamente, melhores que eu.  Porque eu adoro CoT (Chain Of Thoughts) e para maximizar o reasoning do Claude eu usei o sequentialthinking**
 
 # Como rodar localmente (com Docker)
 
