@@ -94,6 +94,45 @@ Tests in `conftest.py` reset all three before and after each test to prevent sta
 
 Each request includes a `session_id`. This maps to LangGraph's `thread_id` in the checkpointer config. Redis persists state across requests within the same session.
 
+## MCP Server
+
+[mcp_server.py](mcp_server.py) exposes the travel agents as MCP tools so Claude (Desktop or Code) can call them directly.
+
+### Run the MCP server
+```bash
+pip install mcp
+python mcp_server.py
+```
+
+### Tools exposed
+
+| Tool | Delegates to | Best for |
+|---|---|---|
+| `query_faq` | `run_faq_agent()` | Policies, baggage, check-in, documentation |
+| `search_travel` | `run_search_agent()` | Prices, availability, airline news |
+| `ask_agent` | `get_graph()` full pipeline | When unsure — routes automatically |
+
+### Claude Desktop configuration
+
+Add to `%APPDATA%\Claude\claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "blis-travel": {
+      "command": "python",
+      "args": ["C:/path/to/blisAI/mcp_server.py"],
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "TAVILY_API_KEY": "tvly-..."
+      }
+    }
+  }
+}
+```
+
+The server reads `.env` automatically, so the `env` block is only needed if `.env` is not present. The server uses the same singletons as the FastAPI app — FAISS vectorstore and the compiled LangGraph graph are initialized once on startup.
+
 ## Testing Patterns
 
 - `tests/conftest.py` patches `build_vectorstore`, `get_graph`, and `aioredis` so no external calls are made.
