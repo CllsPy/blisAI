@@ -2,32 +2,35 @@
 
 Desenvolvimento de uma API REST com arquitetura multi-agent usando LangGraph, onde dois agentes colaboram para responder perguntas sobre viagens.
 
-## Como usei IA no desenvolvimento?
+# Como usei IA no desenvolvimento?
 
-### TL;DR:
+## TL;DR
 
 - Eu uso IA com abordagem Question Driven Development, começando com muitas perguntas e modelos menores.
 - Quebro o problema em partes com GPT-5, uso LLMs para montar a estrutura do projeto e gerar prompts (APE, CoT).
 - Sempre reviso o código porque os modelos perdem contexto (“Lost in the Middle”) e evito continuar chats com muitos erros acumulados.
 - Uso Claude para debugar (ex: Docker/Redis) e me inspiro em colegas e no relatório da Anthropic para evoluir minha produtividade.
+- Usei Claude Code, ChatGPT e DeepSeek.
+- Funcionou para compreender conceitos minimamente, alterar código conforme o teste, debugar, criar testes e entender como rodar o projeto localmente.
+- Não funcionou tentar debugar sem acesso à codebase é complexo e quase impossível. Por isso, exceto o Claude, os outros modelos foram usados apenas para perguntas pontuais.
 
-Quando inicio um projeto novo eu uso a abordagem Question Driven Development, isso significa fazer muitas perguntas: como conectar os Agentes? Como criar um nó de decisão… Para essa primeira etapa eu uso modelos menores e mais rápido, evito Agentes ou Reasoning.
+## Quebre em um milhão de partes
 
-### Quebre em um milhão de partes
+Quando inicio um projeto novo eu uso a abordagem Question Driven Development. Isso significa fazer muitas perguntas: como conectar os agentes? Como criar um nó de decisão? Para essa primeira etapa uso modelos menores e mais rápidos, evitando Agentes ou Reasoning.
+A primeira coisa que fiz foi usar o GPT-5 para decompor o desafio em partes menores. Isso me ajudou a organizar o documento e será fundamental na etapa dos Agentes.
 
-A primeira coisa que fiz foi usar o GPT-5 para decompor o desafio em partes menores para poder organizar esse documento também é fundamental para quando eu iniciar a etapa dos Agentes.
+## Backbone
 
-### Backbone
+Antes dos modelos de linguagem eu usava Cookiecutter para gerar a estrutura dos projetos. Hoje isso é feito estritamente com LLMs.
 
-Antes dos modelos de linguagem eu usava uma uma ferramenta chamada Cookiecutter para gerar a estrutura dos projetos, hoje isso é feito estritamente com LLMs.
+## Engenharia de Prompt (CoT, Auto-CoT, APE)
 
-### Engenharia de Prompt (CoT, Auto-CoT, APE)
-
-Minhas experiência passadas provam duas coisas, escrever Prompt é chato e ter que ficar fazendo isso muitas vezes é ainda pior. Então eu também uso outros modelos de linguagem para gerar exemplos para o meu prompt base, usando uma estratégia chamada APE.
-
-Todo prompt que escrevo, tem como base, o que se segue:
+Minhas experiências passadas mostram que escrever prompt é chato — e repetir isso várias vezes é pior ainda.  
+Por isso uso outros modelos para gerar exemplos para meu prompt base, aplicando a estratégia APE.
 
 ```
+Todo prompt que escrevo segue esta base:
+
 Como um AIE Sênior, como você construiria X?
 
 exemplo 1 - input
@@ -47,14 +50,19 @@ outputs que eu espero
 ###
 ```
 
-### Quem vigia o vigilante?
+## Quem vigia o vigilante?
 
-É sabido que modelos degradam no processo quando o contexto aumenta, há um trabalho sobre isso chamado “Lost In The Middle”, mesmo com contexto superior a 128k tokens, os modelos tendem a “esquecer” informações no meio. Então, eu sempre tive a preocupação de conferir o código gerado, mesmo que após os testes tudo parecesse certo. Mas, também sempre evitei continuar em um chat onde os erros foram acumulados, é um batalha perdida, nesses casos eu tentava outra abordagem.
+Modelos degradam quando o contexto aumenta. O trabalho “Lost In The Middle” mostra que, mesmo com mais de 128k tokens, eles tendem a esquecer informações no meio. Por isso sempre reviso o código gerado, mesmo quando os testes passam.  
+Evito continuar chats onde erros foram acumulados — nesses casos, tento outra abordagem.
 
-### I can’ understand mate
+## I can’t understand, mate
 
-Especialmente nas etapas com Docker e Redis, embora familiar a ambos, minha falta de prática me impediram de entender alguns logs, nesses casos eu usei o Claude sem nem pestanejar, tanto quanto para debugar o código, a medida que a complexidade aumentava eu também solicitei alguns vezes explicações das implementações feita fora do escopo da Inteligência Artificial, como a persistência. Isto me ajudou a progredir mesmo não dominando completamente a ferramenta.
+Especialmente nas etapas com Docker e Redis, apesar de familiaridade, minha falta de prática dificultou entender alguns logs.  
+Nesses casos usei Claude para debugar.
 
-### Na natureza nada se cria
+À medida que a complexidade aumentava, também pedi explicações sobre implementações fora do escopo de IA, como persistência.  
+Isso me ajudou a avançar mesmo sem domínio total da ferramenta.
 
-A maior parte dessas ideias vieram de colegas que trabalham com desenvolvimento web e de um excelente relatório publicado pela Anthropic de como os engenheiros da empresa usam IA para aumentar a produtividade. Busquei me alinhar o máximo com o relatório e posso assegurar que o que mais precisei fazer depois de lidar com os bugs, foi solicitar direcionamento após cometer erros.
+## Na natureza nada se cria
+
+Grande parte das ideias veio de colegas de desenvolvimento web e de um relatório da Anthropic sobre como seus engenheiros usam IA para produtividade. Busquei me alinhar ao relatório. Depois de resolver bugs, o que mais precisei fazer foi pedir direcionamento após cometer erros.
